@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="description" content="Crime Simulator">
+		<title>Crime Simulator</title>
+		<!-- Bootstrap core CSS -->
+		<link href="https://getbootstrap.com/docs/4.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+		<!-- Favicons -->
+		<link rel="apple-touch-icon" href="http://localhost:5000/logo.png" sizes="180x180">
+		<link rel="icon" href="http://localhost:5000/logo.png" sizes="32x32" type="image/png">
+		<link rel="icon" href="http://localhost:5000/logo.png" sizes="16x16" type="image/png">
+		<link rel="icon" href="http://localhost:5000/logo.png">
+		<style>
+			.bd-placeholder-img {
+				font-size: 1.125rem;
+				text-anchor: middle;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+			}
+			@media (min-width: 768px) {
+				.bd-placeholder-img-lg {
+					font-size: 3.5rem;
+				}
+			}
+			.hidden {
+				display: none;
+			}
+			.button-top-padding{
+				margin-top:10px;
+			}
+		</style>
+	</head>
+	<body class="bg-light">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-8 order-md-2 mb-4">
+					<ul class="nav nav-tabs hidden" id="myTab" role="tablist">
+						<div class="col-sm-11 col-md-11">
+							<input class="form-control" type="range" min="0" id="day-changer" max="0" value="0">
+						</div>
+						<div class="col-sm-1">
+							<label for="">Day <span id="day">1</span></label>
+						</div>
+					</ul>
+					<div class="tab-content" id="myTabContent" style="height: 100%">
+						<div style="height: 100%" class="tab-pane fade show active"  id="tab-day-0" role="tabpanel" aria-labelledby="home-tab">
+							<iframe id="map-iframe" src="http://localhost:5000/map" frameborder="0" width="100%" height="600px"></iframe>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-4 order-md-1">
+					<h4 class="mb-3">Parameters</h4>
+					<form class="needs-validation" novalidate>
+						<div class="mb-3">
+							<div class="custom-control custom-switch">
+								<input type="checkbox" class="custom-control-input" id="night-time-switch">
+								<label class="custom-control-label" for="night-time-switch">Night Time</label>
+							</div>
+						</div>
+						<div class="mb-3">
+							<label for="citizens">Number of Citizens</label>
+							<div class="input-group">
+								<input type="number" class="form-control" id="citizens" min="0" max="100" value="10" placeholder="citizens" required>
+							</div>
+						</div>
+						<div class="mb-3">
+							<label for="victims">Number of Victims</label>
+							<div class="input-group">
+								<input type="number" class="form-control" id="victims" min="0" max="100" placeholder="victims" required value="10">
+							</div>
+						</div>
+						<div class="mb-3">
+							<label for="offenders">Number of Offenders</label>
+							<div class="input-group">
+								<input type="number" class="form-control" id="offenders" min="0" max="100" placeholder="offenders" required value="10">
+							</div>
+						</div>
+						<div class="mb-3">
+							<label for="time-frame">Time Frame (in days) (max: 365)</label>
+							<div class="input-group">
+								<input type="number" class="form-control" min="1" value="1" max="365" id="time-frame" placeholder="time frame" required>
+							</div>
+						</div>
+						<legend>Interventions</legend>
+						<div class="mb-3">
+							<label for="survelliance">Survelliance Cameras Count (with effectiveness)</label>
+							<div class="input-group">
+								<input type="number" class="form-control" id="survelliance" placeholder="How many?" min="0" required>
+								<input type="number" class="form-control" id="survelliance-effectiveness" placeholder="Effective (Default: 50)" min="5" max="100" required>
+							</div>
+						</div>
+						<div class="mb-3">
+							<label for="awareness-campaigns">Awareness Campaigns Count (with effectiveness)</label>
+							<div class="input-group">
+								<input type="number" class="form-control" id="awareness-campaigns" placeholder="How many?" min="0" required>
+								<input type="number" class="form-control" id="campaign-effectiveness" placeholder="Effective (Default: 200)" min="5" max="1000" required>
+							</div>
+						</div>
+						<hr class="mb-4">
+						<button class="btn btn-warning btn-sm button-top-padding" id="clear-simulation" type="button">Clear Simulation</button>
+						<button class="btn btn-primary btn-sm button-top-padding" id="draw-maps" type="button">Draw</button>
+						<button class="btn btn-primary btn-sm button-top-padding" id="run-simulation" type="button">Run Simulation</button>
+						<button class="btn btn-primary btn-sm button-top-padding" id="heatmap" type="button">Heatmap</button>
+						<button class="btn btn-primary btn-sm button-top-padding" id="attackmap"  type="button">Attack map</button>
+					</form>
+
+					<div>
+						<iframe src="http://localhost:5000/graph" id="graph-iframe" frameborder="0" width="100%" height="400px"></iframe>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		<script src="https://code.jquery.com/jquery.min.js" crossorigin="anonymous"></script>
+		<script src="https://getbootstrap.com/docs/4.4/dist/js/bootstrap.bundle.min.js" integrity="sha384-6khuMg9gaYr5AxOqhkVIODVIvm9ynTT5J4V1cfthmT+emCG6yVmEZsRHdxlotUnm" crossorigin="anonymous"></script>
+		<script src="http://localhost:5000/notify.min.js"></script>
+		<script>
+			var routes = {
+				generateMap : "http://localhost:5000/generate-map",
+				heatmap : "http://localhost:5000/heatmap",
+				generateCoordinates : "http://localhost:5000/coordinates",
+				showMap : "http://localhost:5000/map",
+				showHeatMap : "http://localhost:5000/Heat-map",
+				showMapNight : "http://localhost:5000/map?night=1",
+				showAttacks : "http://localhost:5000/attacks",
+				runSimulation : "http://localhost:5000/run",
+				clearSimulation : "http://localhost:5000/clear",
+				attacksGraph : "http://localhost:5000/graph",
+			};
+		</script>
+		<script>
+			var coordinatesData = {};
+			var attacksData = {
+				'days' : 0,
+				'attacks' : []
+			};
+
+			var flag = false;
+			
+			var clearSimulation = function() {
+				$.ajax({
+					method: "get",
+					url: routes.clearSimulation,
+				});
+			}
+			
+			$('#clear-simulation').click(function() {
+				
+				coordinatesData = {};
+				attacksData = {
+					'days' : 0,
+					'attacks' : []
+				};
+				
+				clearSimulation();
+				$('.tab-pane').not('#tab-day-0').remove();
+				$('form').find('input').val("");
+			});
+
+			var generateCoordinates = function(data, callback) {
+				$.ajax({
+					method: "get",
+					url: routes.generateCoordinates,
+					data: data,
+					success: function(data) {
+						coordinatesData = data;
+						console.log(coordinatesData)
+						callback(data, refreshMap);
+					}
+				});
+			}
+			var generateMap = function(coordinates, callback) {
+				if($('#night-time-switch').get(0).checked) {
+					coordinates['whether_night_time'] = 1;
+				}
+				
+				coordinates = JSON.stringify(coordinates);
+								
+				$.ajax({
+					method: "post",
+					url: routes.generateMap,
+					contentType: 'application/json',
+					dataType: 'json',
+					data: coordinates,
+					success: function(data) {
+						callback(data);
+					}
+				})
+			}
+
+			var generateHeatMap = function(coordinates, callback) {
+				if($('#night-time-switch').get(0).checked) {
+					coordinates['whether_night_time'] = 1;
+				}
+				
+				coordinates = JSON.stringify(coordinates);
+								
+				$.ajax({
+					method: "post",
+					url: routes.heatmap,
+					contentType: 'application/json',
+					dataType: 'json',
+					data: coordinates,
+					success: function(data) {
+						callback(data);
+					}
+				})
+			}
+			// var sleep = function (milliseconds) {
+			// 	const date = Date.now();
+			// 	let currentDate = null;
+			// 	do {
+			// 		currentDate = Date.now();
+			// 	} while (currentDate - date < milliseconds);
+			// }
+
+			var runMultipleSimulations = function(coordinates) {
+
+				$('.tab-pane').not('#tab-day-0').remove();
+
+				numberOfDays = $('#time-frame').val();
+
+				
+
+				attacksData = {
+					'days' : 0,
+					'attacks' : [],
+				};
+
+				if($('#night-time-switch').get(0).checked) {
+					coordinates['whether_night_time'] = true;
+				}
+				iteration = 1;
+				iteration_2 = 2;
+				for (var i = 1; i <= numberOfDays; i++) {
+					
+					coordinates['day'] = i;
+
+					if(campaign_effectiveness = $('#campaign-effectiveness').val()) {
+						coordinates['campaigns_effective_distance'] = campaign_effectiveness;
+					}
+
+					if(survelliance_effectiveness = $('#survelliance-effectiveness').val()) {
+						coordinates['cameras_effective_distance'] = survelliance_effectiveness;
+					}
+
+					
+					runSimulation(coordinates, function(data) {
+						console.log(iteration);
+						addTab(iteration);
+						$('#day-changer').attr('max', iteration);
+						fillAttacksTable(data.attacks, iteration);
+						$.notify("Generated Attacks Map for Day: " + iteration)
+						
+						attacksData['days'] = iteration;
+						attacksData['attacks'].push(data.attacks);
+						
+						drawGraph();
+						iteration++;
+
+					});
+
+				$('#day-changer').parents('.nav-tabs').removeClass('hidden');
+
+				}
+			}
+
+			var drawGraph = function() {
+				numberOfAttacks = [];
+				attacksData['attacks'].forEach(function(attack, iteration) {
+					numberOfAttacks.push(0);
+					
+					attack.forEach(function(row) {
+							numberOfAttacks[iteration]++
+					});
+				});
+
+				$('#graph-iframe').get(0).src = routes.attacksGraph + "?days=" + numberOfAttacks.length + "&attacks=" + numberOfAttacks.join(",");
+
+			}
+			
+			var runSimulation = function(coordinates, callback) {
+			//	$.notify("Generating Attacks Map for Day: " + coordinates['day'])
+				$.ajax({
+					method: "post",
+					url: routes.runSimulation,
+					contentType: 'application/json',
+					dataType: 'json',
+					data: JSON.stringify(coordinates),
+					success: function(data) {
+						callback(data);
+					}
+				});
+				
+			}
+			
+			var refreshMap = function() {
+				$('#map-iframe').get(0).src = routes.showMap;
+			}
+			var refreshHeatMap = function() {
+				$('#map-iframe').get(0).src = routes.showHeatMap;
+			}
+
+			$('#night-time-switch').change(function() {
+				if(this.checked)
+					$('#map-iframe').get(0).src	= routes.showMapNight;
+				else
+					$('#map-iframe').get(0).src	= routes.showMap;
+			});
+
+			
+			$('#draw-maps').click(function() {
+				data = {
+					victims: $('#victims').val(),
+					offenders: $('#offenders').val(),
+					cameras: $('#survelliance').val(),
+					campaigns: $('#awareness-campaigns').val(),
+					citizens: $('#citizens').val(),
+					framedays: $('#time-frame').val(),
+				}
+				generateCoordinates(data, generateMap)
+			});
+
+			$('#heatmap').click(function() {
+				$('#day-changer').parents('.nav-tabs').addClass('hidden');
+				if(flag){
+					$('.tab-pane').addClass('active');
+					$('#tab-day-' + $('#day-changer').value).removeClass('active');
+					flag = false;
+				}				
+				generateHeatMap(coordinatesData,refreshHeatMap);
+			});
+
+			$('#attackmap').click(function() {
+				
+				$('#day-changer').parents('.nav-tabs').removeClass('hidden');
+				console.log(1)
+				switchToTab(1);
+			});
+
+			$('#run-simulation').click(function() {
+				runMultipleSimulations(coordinatesData);
+			});
+
+			var fillAttacksTable = function(data, i) {
+				html = "";
+				data.forEach(function(row, key) {
+
+					html += "<tr>";
+					html += "<td>";
+					html += key+1;
+					html += "</td>";
+
+					html += "<td>";
+					
+					html += (row.lats).toFixed(3);
+					
+					html += "</td>";
+					
+					html += "<td>";
+					
+					html += (row.lons).toFixed(3);
+
+					html += "</td>";
+					
+					html += "</tr>";
+				});
+
+				$('.attacks-table').eq(i - 1).html(html)
+			}
+
+			$('#day-changer').change(function() {
+				flag = true;
+				$('#day').text(this.value);
+				console.log(this.value)
+				switchToTab(this.value);
+			})
+
+			var addTab = function(indexOfTab) {
+				html = '';
+				html += '<div style="height: 100%" class="tab-pane" id="tab-day-' + indexOfTab + '">';
+				html += '<iframe class="attacks-iframe" src="http://localhost:5000/attacks?day=' + indexOfTab + '" frameborder="0" width="100%" height="600px"></iframe>';
+				
+				html +=  "<h1>Tab Number: " + indexOfTab + "</h1>";
+				html += '<table class="table"><tr><th>Attack</th><th>Latitude</th><th>longitude</th></tr><tbody class="attacks-table"></tbody></table>';
+				html += '</div>'; 
+
+				$('#myTabContent').append(html);
+
+			}
+
+			var addTabs = function(numberOfTabs) {
+				for (var i = 1; i <= numberOfTabs; i++) {
+					addTab(i);
+				}
+			}
+
+			var switchToTab = function(index) {
+				$('.tab-pane').removeClass('active');
+				$('#tab-day-' + index).addClass('active');
+			}
+
+		</script>
+	</html>
